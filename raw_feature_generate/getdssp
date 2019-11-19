@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+
+use File::Basename;
+foreach $pn (@ARGV){
+	next if not -e $pn;
+	$fn = $pn;
+	$fn =~ s/\.ent$|\.pdb$//;
+#	print STDERR "$fn.dssp exists\n"; next if -e "$fn.dssp";
+#	open(FP, "> $fn.dssp");
+	($seq, $ssec) = &getDSSP($pn, *phi_dim, *psi_dim, *asa_dim);
+	printf ">%s %d", basename($fn), length($seq);
+	print "\n"; #"    #seq ss phi psi asa\n";
+	print "$seq\n$ssec\n";
+	print join(" ", @phi_dim), "\n";
+	print join(" ", @psi_dim), "\n";
+	print join(" ", @asa_dim), "\n";
+#	close FP;
+}
+#
+sub getDSSP{
+	local ($fn, *phi_dim, *psi_dim, *asa_dim) = @_;
+	open(Fp, $fn) || warn "Error dssp for $fn\n";
+	my ($seq, $ssec) = ("", "");
+	@phi_dim = (); @psi_dim = (); @asa_dim = ();
+	my $nr = 0;
+	while(<Fp>){
+		last if /RESIDUE AA STRUCTURE/;
+	}
+	while($str = <Fp>){
+		$rn1 = substr($str, 13,1);
+		next if $rn1 eq "!";
+		if ($rn1 !~ /[A-Z]/){
+			$rn1 =uc($rn1);
+		}
+		$seq .= $rn1;
+		push @asa_dim, substr($str, 35, 3)+0;
+		push @phi_dim, substr($str, 103, 6)+0;
+		push @psi_dim, substr($str, 109, 6)+0;
+		$ss1 = substr($str, 16, 1);
+		$ss1 = 'C' if $ss1 eq " ";
+		$ssec .= $ss1;
+	}
+	close Fp;
+	return ($seq, $ssec);
+}

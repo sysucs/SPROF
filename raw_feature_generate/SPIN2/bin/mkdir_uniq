@@ -1,0 +1,11 @@
+#!/bin/sh
+
+DIR="/home/www/html/server/SPIN2/results"
+
+UUID=""
+while [ -z "$UUID" -o -f "$DIR/$UUID" ]; do
+    UUID=`uuidgen`
+done
+
+mkdir $DIR/$UUID
+echo $UUID

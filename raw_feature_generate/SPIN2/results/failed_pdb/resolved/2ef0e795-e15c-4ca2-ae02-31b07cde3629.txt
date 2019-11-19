@@ -1,0 +1,6 @@
+In first chain:
+
+    CB atom missing from RES 1
+    RES 112 only contains N atom
+    RES 113-126 missing
+
